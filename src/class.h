@@ -1,4 +1,4 @@
-//классы и их методы
+#include <SFML/Graphics.hpp>
 
 #include "SFML/Graphics.hpp"
 #include <vector>
@@ -164,68 +164,8 @@ void Player::checkCollisionWithMap(float Dx, float Dy) { //взаимодейс�
                 if (Dx > 0) { x = j * 32 - w; }
                 if (Dx < 0) { x = j * 32 + 32; }
             }
+            //else { onGround = false; }//надо убрать т.к мы можем находиться и на другой поверхности или платформе которую разрушит враг
         }
-    std::cout << "y: " << y << "Dx " << Dx << std::endl;
-    if (y > 720 || y < 0)
-        life = false;
-}
-
-void Player::checkCollisionWithBonus() { //взаимодействие персонажа с бонусами
-    for (auto it{ 0 }; it < bonus.size(); ++it)
-    {
-        if (sprite.getGlobalBounds().intersects(bonus[it]->sprite.getGlobalBounds())) {
-            if (bonus[it]->name == "heart") {
-                health += 10;
-            }
-            else if (bonus[it]->name == "coin") {
-                score++;
-            }
-            bonus.erase(bonus.begin() + it);
-        }
-    }
-}
-
-void Player::interactionWithEnemy() {
-    for (auto it{ 0 }; it < enemy.size(); ++it)
-    {
-        if (sprite.getGlobalBounds().intersects(enemy[it]->sprite.getGlobalBounds()))
-        {
-            if (enemy[it]->name == "EasyEnemy") {
-                if (!onGround) {
-                    enemy[it]->dx = 0; dy = -0.4; enemy[it]->health = 0;
-                    enemy.erase(enemy.begin() + it);
-                }
-                else {
-                    health -= 15;
-                    if (enemy[it]->dx > 0)
-                    {
-                        enemy[it]->dx *= -1;
-                        enemy[it]->x = -x - enemy[it]->w;
-
-                    }
-                    if (enemy[it]->dx < 0)
-                    {
-                        enemy[it]->x = x + w;
-                        enemy[it]->dx *= -1;
-                    }
-                    if (dx < 0) {
-                        x -= 40;
-                    }
-                    if (dx > 0) {
-                        x -= 40;
-                    }
-
-                }
-            }
-        }
-    }
-}
-
-void Player::clearBonus() { //освобождение памяти 
-    for (auto it = bonus.begin(); it != bonus.end(); ++it) {
-        delete* it;
-    }
-    bonus.clear();
 }
 
 void Player::control(float time) {
