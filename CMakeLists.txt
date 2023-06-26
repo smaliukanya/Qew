@@ -13,9 +13,12 @@ add_executable(CMakeSFMLProject
 	src/class.h
 	src/view.h
 	src/mission.h
-	src/images/map.png
-	src/images/cat.png
 )
+
+set(IMAGES_FOLDER
+	${CMAKE_SOURCE_DIR}/src/images/)
+set(FONT ${CMAKE_SOURCE_DIR}/src/CyrilicOld.TTF)
+
 target_link_libraries(CMakeSFMLProject PRIVATE sfml-graphics)
 target_compile_features(CMakeSFMLProject PRIVATE cxx_std_17)
 if (WIN32 AND BUILD_SHARED_LIBS)
@@ -24,3 +27,8 @@ if (WIN32 AND BUILD_SHARED_LIBS)
 endif()
 
 install(TARGETS CMakeSFMLProject)
+
+add_custom_command(TARGET CMakeSFMLProject POST_BUILD
+					COMMAND ${CMAKE_COMMAND} -E copy_directory ${IMAGES_FOLDER} ${CMAKE_BINARY_DIR}/images)
+add_custom_command(TARGET CMakeSFMLProject POST_BUILD
+					COMMAND ${CMAKE_COMMAND} -E copy ${FONT} ${CMAKE_BINARY_DIR})
