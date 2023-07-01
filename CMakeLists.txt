@@ -13,6 +13,7 @@ add_executable(CMakeSFMLProject
 	src/class.h
 	src/view.h
 	src/mission.h
+	src/GameManager.h
 )
 
 set(IMAGES_FOLDER

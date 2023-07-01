@@ -1,4 +1,4 @@
-#include <SFML/Graphics.hpp>
+//классы и их методы
 
 #include "SFML/Graphics.hpp"
 #include <vector>
@@ -20,7 +20,9 @@ public:
     String name;
     Texture texture;
     Sprite sprite;
+    Image image1;
     Entity(Image& image, float X, float Y, float W, float H, String Name) {
+        image1 = image;
         w = W; h = H; x = X; y = Y; health = 100; name = Name;
         life = true; onGround = true; moveTimer = 0; speed = 0;
         dx = 0; dy = 0;
@@ -44,6 +46,13 @@ public:
     float CurrentFrame = 0;
     enum { left, right, up, down, jump, stay } state;
     int score;
+
+    void operator =(const Player& temp) {
+        this->image1 = temp.image1;
+        texture.loadFromImage(image1);
+        sprite.setTexture(texture);
+        sprite.setOrigin(w / 2, h / 2);
+    }
 
     Player(Image& image, float X, float Y, float W, float H, String Name) :Entity(image, X, Y, W, H, Name) {
         score = 0;
@@ -164,8 +173,68 @@ void Player::checkCollisionWithMap(float Dx, float Dy) { //взаимодейс�
                 if (Dx > 0) { x = j * 32 - w; }
                 if (Dx < 0) { x = j * 32 + 32; }
             }
-            //else { onGround = false; }//надо убрать т.к мы можем находиться и на другой поверхности или платформе которую разрушит враг
         }
+    //std::cout << "y: " << y << "Dx " << Dx << std::endl;
+    if (y > 720 || y < 0)
+        life = false;
+}
+
+void Player::checkCollisionWithBonus() { //взаимодействие персонажа с бонусами
+    for (auto it{ 0 }; it < bonus.size(); ++it)
+    {
+        if (sprite.getGlobalBounds().intersects(bonus[it]->sprite.getGlobalBounds())) {
+            if (bonus[it]->name == "heart") {
+                health += 10;
+            }
+            else if (bonus[it]->name == "coin") {
+                score++;
+            }
+            bonus.erase(bonus.begin() + it);
+        }
+    }
+}
+
+void Player::interactionWithEnemy() {
+    for (auto it{ 0 }; it < enemy.size(); ++it)
+    {
+        if (sprite.getGlobalBounds().intersects(enemy[it]->sprite.getGlobalBounds()))
+        {
+            if (enemy[it]->name == "EasyEnemy") {
+                if (!onGround) {
+                    enemy[it]->dx = 0; dy = -0.4; enemy[it]->health = 0;
+                    enemy.erase(enemy.begin() + it);
+                }
+                else {
+                    health -= 50;
+                    if (enemy[it]->dx > 0)
+                    {
+                        enemy[it]->dx *= -1;
+                        enemy[it]->x = -x - enemy[it]->w;
+
+                    }
+                    if (enemy[it]->dx < 0)
+                    {
+                        enemy[it]->x = x + w;
+                        enemy[it]->dx *= -1;
+                    }
+                    if (dx < 0) {
+                        x -= 40;
+                    }
+                    if (dx > 0) {
+                        x -= 40;
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+void Player::clearBonus() { //освобождение памяти 
+    for (auto it = bonus.begin(); it != bonus.end(); ++it) {
+        delete* it;
+    }
+    bonus.clear();
 }
 
 void Player::control(float time) {
