@@ -14,13 +14,16 @@ add_executable(CMakeSFMLProject
 	src/view.h
 	src/mission.h
 	src/GameManager.h
+	src/SoundsManager.h
 )
 
 set(IMAGES_FOLDER
 	${CMAKE_SOURCE_DIR}/src/images/)
 set(FONT ${CMAKE_SOURCE_DIR}/src/CyrilicOld.TTF)
+set(SOUNDS_FOLDER ${CMAKE_SOURCE_DIR}/src/sounds/)
 
 target_link_libraries(CMakeSFMLProject PRIVATE sfml-graphics)
+target_link_libraries(CMakeSFMLProject PRIVATE sfml-audio)
 target_compile_features(CMakeSFMLProject PRIVATE cxx_std_17)
 if (WIN32 AND BUILD_SHARED_LIBS)
     add_custom_command(TARGET CMakeSFMLProject POST_BUILD
@@ -31,5 +34,7 @@ install(TARGETS CMakeSFMLProject)
 
 add_custom_command(TARGET CMakeSFMLProject POST_BUILD
 					COMMAND ${CMAKE_COMMAND} -E copy_directory ${IMAGES_FOLDER} ${CMAKE_BINARY_DIR}/images)
+add_custom_command(TARGET CMakeSFMLProject POST_BUILD
+					COMMAND ${CMAKE_COMMAND} -E copy_directory ${SOUNDS_FOLDER} ${CMAKE_BINARY_DIR}/sounds)
 add_custom_command(TARGET CMakeSFMLProject POST_BUILD
 					COMMAND ${CMAKE_COMMAND} -E copy ${FONT} ${CMAKE_BINARY_DIR})
