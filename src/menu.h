@@ -1,26 +1,24 @@
 //меню в будущем, но пока еще так себе работает
 
 #include "SFML/Graphics.hpp"
-#include "view.h"
-using namespace sf;
 
 void menu(RenderWindow& window) {
-    Texture menuTexture1, menuTexture2, menuTexture3, aboutTexture, menuBackgroud;
+	Texture menuTexture1, menuTexture2, menuTexture3, aboutTexture, menuBackgroud;
 
-    menuTexture1.loadFromFile("images/111.png");
+	menuTexture1.loadFromFile("images/111.png");
     menuTexture2.loadFromFile("images/222.png");
     menuTexture3.loadFromFile("images/333.png");
     aboutTexture.loadFromFile("images/about.png");
 
-    menuBackgroud.loadFromFile("images/back.jpg");
+	menuBackgroud.loadFromFile("images/back.jpg");
 
-    Sprite menu1(menuTexture1), menu2(menuTexture2), menu3(menuTexture3), menuBg(menuBackgroud), about(aboutTexture);
-    bool isMenu = 1;
+	Sprite menu1(menuTexture1), menu2(menuTexture2), menu3(menuTexture3), menuBg(menuBackgroud), about(aboutTexture);
+	bool isMenu = 1;
 
-    menuBg.setPosition(view.getCenter() - sf::Vector2f(1280 / 2, 720 / 2));
+	menuBg.setPosition(view.getCenter() - sf::Vector2f(1280 / 2, 720 / 2));
 
-    int menuNum = 0;
-    menu1.setPosition(550, 100);
+	int menuNum = 0;
+	menu1.setPosition(550, 100);
     menu2.setPosition(550, 200);
     menu3.setPosition(550, 300);
 
@@ -40,7 +38,7 @@ void menu(RenderWindow& window) {
 
         if (Mouse::isButtonPressed(Mouse::Left))
         {
-            if (menuNum == 1) isMenu = false;
+            if (menuNum == 1) isMenu = false; 
             if (menuNum == 2) { window.draw(about); window.display(); while (!Keyboard::isKeyPressed(Keyboard::Escape)); }
             if (menuNum == 3) { window.close(); isMenu = false; }
 

@@ -1,10 +1,9 @@
-//классы и их методы
+//РєР»Р°СЃСЃС‹ Рё РёС… РјРµС‚РѕРґС‹
 
 #include "SFML/Graphics.hpp"
 #include <vector>
 #include "iostream"
 #include "view.h"
-#include "SoundsManager.h"
 #include "map.h"
 
 using namespace sf;
@@ -42,14 +41,12 @@ public:
     //virtual void update();
 };
 
-class Player : public Entity { //класс персонажа
-private:
+class Player : public Entity { //РєР»Р°СЃСЃ РїРµСЂСЃРѕРЅР°Р¶Р°
+public:
     float CurrentFrame = 0;
     enum { left, right, up, down, jump, stay } state;
     int score;
-    bool isCollision = false;
-    SoundManager sound;
-public:
+
     void operator =(const Player& temp) {
         this->image1 = temp.image1;
         texture.loadFromImage(image1);
@@ -69,25 +66,18 @@ public:
     void checkCollisionWithMap(float, float);
     void control(float);
     void checkCollisionWithBonus();
-    void clear();
+    void clearBonus();
 
     void interactionWithEnemy();
 
     std::vector<Bonus*> bonus;
     std::vector<Enemy*> enemy;
-    int setScore() {
-        return score;
-    }
-    int getScore(int score1) {
-        score = score1;
-        return score;
-    }
+
 };
 
-class Bonus :public Entity { //класс бонусов
-private:
-    int countBonuses = 0;
+class Bonus :public Entity { //РєР»Р°СЃСЃ Р±РѕРЅСѓСЃРѕРІ
 public:
+    int countBonuses = 0;
     Bonus(Image& image, float X, float Y, float W, float H, String Name) : Entity(image, X, Y, W, H, Name) {
 
         texture.loadFromImage(image);
@@ -120,23 +110,21 @@ public:
 
 void Bonus::update(float time) {
     if (name == "heart") {
+        //checkCollisionWithMap2(dx, 650);
         sprite.setPosition(x + w / 2, y + h / 2);
     }
     if (name == "coin") {
+        //checkCollisionWithMap2(dx, 650);
         sprite.setPosition(x + w / 2, y + h / 2);
     }
 }
 
-class Enemy : public Entity { //класс врагов
+class Enemy : public Entity { //РєР»Р°СЃСЃ РІСЂР°РіРѕРІ
 public:
     Enemy(Image& image, float X, float Y, float W, float H, String Name) :Entity(image, X, Y, W, H, Name) {
         if (name == "EasyEnemy") {
             sprite.setTextureRect(IntRect(0, 0, w, h));
             dx = 0.1;
-        }
-        if (name == "sven") {
-            sprite.setTextureRect(IntRect(0, 0, w, h));
-            dx = 0.2;
         }
     }
     void checkCollisionWithMap(float, float);
@@ -162,9 +150,7 @@ void Player::update(float time) {
     speed = 0;
     //sprite.setPosition(x, y);
     sprite.setPosition(x + w / 2, y + h / 2);
-    if (health <= 0) {
-        life = false;
-    }
+    if (health <= 0) life = false;
     dy = dy + 0.0015 * time;
     checkCollisionWithMap(0, dy);
     checkCollisionWithBonus();
@@ -175,8 +161,8 @@ void Player::update(float time) {
 
 }
 
-void Player::checkCollisionWithMap(float Dx, float Dy) { //взаимодействие персонажа с картой
-    //столкновение с элементами карты и проверка на выход за пределы массива по х
+void Player::checkCollisionWithMap(float Dx, float Dy) { //РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёРµ РїРµСЂСЃРѕРЅР°Р¶Р° СЃ РєР°СЂС‚РѕР№
+    //СЃС‚РѕР»РєРЅРѕРІРµРЅРёРµ СЃ СЌР»РµРјРµРЅС‚Р°РјРё РєР°СЂС‚С‹ Рё РїСЂРѕРІРµСЂРєР° РЅР° РІС‹С…РѕРґ Р·Р° РїСЂРµРґРµР»С‹ РјР°СЃСЃРёРїР° РїРѕ С…
     for (int i = y / 32; i < (y + h) / 32; i++)
         for (int j = x / 32; j < (x + w) / 32; j++)
         {
@@ -189,24 +175,19 @@ void Player::checkCollisionWithMap(float Dx, float Dy) { //взаимодействие персон
             }
         }
     //std::cout << "y: " << y << "Dx " << Dx << std::endl;
-    if (y > 600) {
-        health = 0;
-        y = 550;
-        x = 128;
-    }
+    if (y > 720 || y < 0)
+        life = false;
 }
 
-void Player::checkCollisionWithBonus() { //взаимодействие персонажа с бонусами
+void Player::checkCollisionWithBonus() { //РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёРµ РїРµСЂСЃРѕРЅР°Р¶Р° СЃ Р±РѕРЅСѓСЃР°РјРё
     for (auto it{ 0 }; it < bonus.size(); ++it)
     {
         if (sprite.getGlobalBounds().intersects(bonus[it]->sprite.getGlobalBounds())) {
             if (bonus[it]->name == "heart") {
                 health += 10;
-                sound.playHeartSound();
             }
             else if (bonus[it]->name == "coin") {
                 score++;
-                sound.playCoinSound();
             }
             bonus.erase(bonus.begin() + it);
         }
@@ -214,18 +195,10 @@ void Player::checkCollisionWithBonus() { //взаимодействие персонажа с бонусами
 }
 
 void Player::interactionWithEnemy() {
-    Clock collisionTimer;
-    float distanceThreshold = 200;
     for (auto it{ 0 }; it < enemy.size(); ++it)
     {
         if (sprite.getGlobalBounds().intersects(enemy[it]->sprite.getGlobalBounds()))
         {
-            //if (!isCollision)
-            //{
-            //    isCollision = true;
-            //    sprite.setColor(sf::Color::Red);
-            //    collisionTimer.restart();
-            //}
             if (enemy[it]->name == "EasyEnemy") {
                 if (!onGround) {
                     enemy[it]->dx = 0; dy = -0.4; enemy[it]->health = 0;
@@ -233,7 +206,6 @@ void Player::interactionWithEnemy() {
                 }
                 else {
                     health -= 50;
-                    
                     if (enemy[it]->dx > 0)
                     {
                         enemy[it]->dx *= -1;
@@ -254,50 +226,16 @@ void Player::interactionWithEnemy() {
 
                 }
             }
-            if (enemy[it]->name == "sven") {
-                enemy[it]->sprite.setColor(sf::Color::Red);
-                sf::Vector2f playerPosition = sprite.getPosition();
-                sf::Vector2f enemyPosition = enemy[it]->sprite.getPosition();
-
-                float distance = std::sqrt(std::pow(playerPosition.x - enemyPosition.x, 2) + std::pow(playerPosition.y - enemyPosition.y, 2));
-
-                if (distance < distanceThreshold)
-                {
-
-                    sf::Vector2f direction = playerPosition - enemyPosition;
-                    direction /= distance; 
-
-                    enemyPosition += direction * enemy[it]->dx;
-                    enemy[it]->sprite.setPosition(enemyPosition);
-                }
-                else
-                {
-                    enemy[it]->sprite.setColor(sf::Color::White);
-                }
-            }
-        }
-        else
-        {
-            if (isCollision && collisionTimer.getElapsedTime().asSeconds() >= 1)
-            {
-                isCollision = false;
-                sprite.setColor(sf::Color::White);
-            }
         }
     }
 }
 
-void Player::clear() { //освобождение памяти 
+void Player::clearBonus() { //РѕСЃРІРѕР±РѕР¶РґРµРЅРёРµ РїР°РјСЏС‚Рё 
     for (auto it = bonus.begin(); it != bonus.end(); ++it) {
         delete* it;
     }
     bonus.clear();
-    for (auto it = enemy.begin(); it != enemy.end(); ++it) {
-        delete* it;
-    }
-    enemy.clear();
 }
-
 
 void Player::control(float time) {
     if (Keyboard::isKeyPressed(Keyboard::A)) {
@@ -326,12 +264,12 @@ void Player::control(float time) {
     }
 }
 
-void Enemy::checkCollisionWithMap(float Dx, float Dy) //взаимодействие врагов с картой
+void Enemy::checkCollisionWithMap(float Dx, float Dy) //РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёРµ РІСЂР°РіРѕРІ СЃ РєР°СЂС‚РѕР№
 {
     for (int i = y / 32; i < (y + h) / 32; i++)
         for (int j = x / 32; j < (x + w) / 32; j++)
         {
-            if (TileMap[i][j] == '0' || TileMap[i][j] == 's' )
+            if (TileMap[i][j] == '0' || TileMap[i][j] == 's')
             {
                 if (Dy > 0) { y = i * 32 - h; }
                 if (Dy < 0) { y = i * 32 + 32; }
@@ -349,12 +287,5 @@ void Enemy::update(float time) {
         x += dx * time;
         sprite.setPosition(x + w / 2, y + h / 2);
         /*if (health <= 0) life = false;*/
-    }
-    if (name == "sven"){
-            moveTimer += time;
-            if (moveTimer > 1000) { dx *= -1; moveTimer = 0; }
-            checkCollisionWithMap(dx, 650);
-            x += dx * time;
-            sprite.setPosition(x + w / 2, y + h / 2);
     }
 }
