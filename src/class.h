@@ -229,11 +229,13 @@ void Player::interactionWithEnemy() {
             if (enemy[it]->name == "EasyEnemy") {
                 if (!onGround) {
                     enemy[it]->dx = 0; dy = -0.4; enemy[it]->health = 0;
+                    sound.playDiedSound();
                     enemy.erase(enemy.begin() + it);
                 }
                 else {
+                    sound.playHitSound();
                     health -= 50;
-                    
+
                     if (enemy[it]->dx > 0)
                     {
                         enemy[it]->dx *= -1;
@@ -258,22 +260,6 @@ void Player::interactionWithEnemy() {
                 enemy[it]->sprite.setColor(sf::Color::Red);
                 sf::Vector2f playerPosition = sprite.getPosition();
                 sf::Vector2f enemyPosition = enemy[it]->sprite.getPosition();
-
-                float distance = std::sqrt(std::pow(playerPosition.x - enemyPosition.x, 2) + std::pow(playerPosition.y - enemyPosition.y, 2));
-
-                if (distance < distanceThreshold)
-                {
-
-                    sf::Vector2f direction = playerPosition - enemyPosition;
-                    direction /= distance; 
-
-                    enemyPosition += direction * enemy[it]->dx;
-                    enemy[it]->sprite.setPosition(enemyPosition);
-                }
-                else
-                {
-                    enemy[it]->sprite.setColor(sf::Color::White);
-                }
             }
         }
         else
@@ -316,6 +302,7 @@ void Player::control(float time) {
     }
     if (Keyboard::isKeyPressed(Keyboard::W) && (onGround)) {
         state = jump;
+        sound.playJumpSound();
         //sprite.setTextureRect(IntRect(65 * int(CurrentFrame), 160, 110, 145));
         dy = -0.55; onGround = false;
     }
@@ -331,7 +318,7 @@ void Enemy::checkCollisionWithMap(float Dx, float Dy) //взаимодействие врагов с 
     for (int i = y / 32; i < (y + h) / 32; i++)
         for (int j = x / 32; j < (x + w) / 32; j++)
         {
-            if (TileMap[i][j] == '0' || TileMap[i][j] == 's' )
+            if (TileMap[i][j] == '0' || TileMap[i][j] == 's')
             {
                 if (Dy > 0) { y = i * 32 - h; }
                 if (Dy < 0) { y = i * 32 + 32; }
@@ -350,11 +337,11 @@ void Enemy::update(float time) {
         sprite.setPosition(x + w / 2, y + h / 2);
         /*if (health <= 0) life = false;*/
     }
-    if (name == "sven"){
-            moveTimer += time;
-            if (moveTimer > 1000) { dx *= -1; moveTimer = 0; }
-            checkCollisionWithMap(dx, 650);
-            x += dx * time;
-            sprite.setPosition(x + w / 2, y + h / 2);
+    if (name == "sven") {
+        moveTimer += time;
+        if (moveTimer > 1000) { dx *= -1; moveTimer = 0; }
+        checkCollisionWithMap(dx, 650);
+        x += dx * time;
+        sprite.setPosition(x + w / 2, y + h / 2);
     }
 }

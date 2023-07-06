@@ -19,7 +19,7 @@ private:
     Sound hit;
 public:
     SoundManager() {
-        soundBuffer.loadFromFile("sounds/coin.wav");
+        soundBuffer.loadFromFile("sounds/coin.ogg");
         sound.setBuffer(soundBuffer);
 
         heartBuffer.loadFromFile("sounds/heart.ogg");

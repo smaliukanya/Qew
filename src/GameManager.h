@@ -19,6 +19,7 @@ private:
     Image Hero;
     Image hp_image;
     int level = 1;
+    int countSoundGameOver = 1;
 public:
     GameManager(sf::RenderWindow& window) : window(window), player2(Hero, 128, 600, 65, 135, "player2") {
         Hero.loadFromFile("images/hero.png");
@@ -65,7 +66,7 @@ void GameManager::addEntity() {
     Image boss_image;
     boss_image.loadFromFile("images/sven.png");
 
-    if (level = 1) {
+    if (level == 1) {
         player2.enemy.push_back(new Enemy(EasyEnemyImage, 600, 550, 60, 60, "EasyEnemy"));
         player2.enemy.push_back(new Enemy(EasyEnemyImage, 1500, 550, 60, 60, "EasyEnemy"));
         player2.enemy.push_back(new Enemy(boss_image, 2400, 500, 130, 130, "sven"));
@@ -180,6 +181,11 @@ void GameManager::startGame() {
 }
 
 void GameManager::endGame() {
+    if (countSoundGameOver == 1) {
+        sounds.playGameOverSound();
+        countSoundGameOver++;
+    }
+
     Texture Died;
     Died.loadFromFile("images/died.jpg");
 
@@ -219,18 +225,20 @@ void GameManager::endGameMenu(Text text1, Text text2) {
             if (event.mouseButton.button == sf::Mouse::Left)
             {
                 sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-                sf::Vector2f worldPosition = window.mapPixelToCoords(mousePosition); 
+                sf::Vector2f worldPosition = window.mapPixelToCoords(mousePosition);
                 sf::FloatRect text1Bounds = text1.getGlobalBounds();
                 sf::FloatRect text2Bounds = text2.getGlobalBounds();
 
 
                 if (text1Bounds.contains(worldPosition))
                 {
+                    sounds.stopGameOverSound();
                     std::cout << "qwe";
 
                 }
                 else if (text2Bounds.contains(worldPosition))
                 {
+                    sounds.stopGameOverSound();
                     restartGame();
                 }
             }
@@ -242,11 +250,11 @@ void GameManager::endGameMenu(Text text1, Text text2) {
 
             if (text1.getGlobalBounds().contains(worldPosition))
             {
-                text1.setCharacterSize(50); 
+                text1.setCharacterSize(50);
             }
             else
             {
-                text1.setCharacterSize(40); 
+                text1.setCharacterSize(40);
             }
             if (text2.getGlobalBounds().contains(worldPosition))
             {
@@ -263,10 +271,11 @@ void GameManager::endGameMenu(Text text1, Text text2) {
 }
 
 void GameManager::restartGame() {
+    countSoundGameOver = 1;
     std::cout << "yeh";
     player2.life = true;
     player2.health = 100;
-    if (level = 1) {
+    if (level == 1) {
         player2.x = 128;
         player2.y = 550;
     }
