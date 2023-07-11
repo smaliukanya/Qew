@@ -5,8 +5,9 @@
 using namespace sf;
 
 int main() {
+    RenderWindow window(VideoMode(1280, 720), "Game");
     View view;
-    Menu menu;
+    Menu menu(window);
 
     menu.drawMenu();
 
