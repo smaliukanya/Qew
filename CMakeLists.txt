@@ -15,7 +15,6 @@ add_executable(CMakeSFMLProject
 	src/PlayerClass.h
 	src/BonusClass.h
 	src/EnemyClass.h
-	src/Class.h
 	src/view.h
 	src/mission.h
 	src/GameManager.h
