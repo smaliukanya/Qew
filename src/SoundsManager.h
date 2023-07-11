@@ -5,6 +5,7 @@ using namespace sf;
 class SoundManager {
 private:
     Music music;
+    Music menuMusic;
     SoundBuffer gameOver;
     SoundBuffer hitBuffer;
     SoundBuffer soundBuffer;
@@ -18,7 +19,7 @@ private:
     Sound heart;
     Sound hit;
 public:
-    SoundManager() {
+    void loadingSounds() {
         soundBuffer.loadFromFile("sounds/coin.ogg");
         sound.setBuffer(soundBuffer);
 
@@ -36,6 +37,15 @@ public:
 
         jumpBuffer.loadFromFile("sounds/jump.ogg");
         jumpSound.setBuffer(jumpBuffer);
+    }
+    void playMenuMusic(){
+        menuMusic.openFromFile("sounds/empty-hallways.ogg");
+        menuMusic.setVolume(20);
+        menuMusic.setLoop(true);
+        menuMusic.play();
+    }
+    void endMenuMusic() {
+        menuMusic.stop();
     }
     void playBackgroundMusic() {
         music.openFromFile("sounds/music.ogg");

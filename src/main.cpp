@@ -1,15 +1,14 @@
 #include "SFML/Graphics.hpp"
 #include <vector>
-#include "GameManager.h"
+#include "menu.h"
 
 using namespace sf;
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(1280, 720), "Game");
     View view;
-    GameManager gameManager(window);
+    Menu menu;
 
-    gameManager.startGame();
+    menu.drawMenu();
 
     return 0;
 }
