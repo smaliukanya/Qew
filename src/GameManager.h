@@ -1,7 +1,7 @@
 #include "SFML/Graphics.hpp"
 #include <sstream>
 #include "iostream"
-#include "class.h"
+#include "PlayerClass.h"
 
 using namespace sf;
 
@@ -19,11 +19,14 @@ private:
     Image Hero;
     Image hp_image;
     int level = 1;
+    int countSoundGameOver = 1;
 public:
     GameManager(sf::RenderWindow& window) : window(window), player2(Hero, 128, 600, 65, 135, "player2") {
         Hero.loadFromFile("images/hero.png");
         Player temp(Hero, 128, 600, 65, 135, "player2");
         player2 = temp;
+
+        sounds.loadingSounds();
 
         backgroundTexture.loadFromFile("images/back.jpg");
         if (!backgroundTexture.loadFromFile("images/back.jpg")) {
@@ -42,14 +45,14 @@ public:
         font.loadFromFile("CyrilicOld.TTF");
     }
 
-    void addEntity(); //добавление элементов на карту
-    void update(float time); //обновление
-    void draw(); //выведение элементов на экран
-    void information(); //информация в игре (здоровье, счет, уровень)
-    void endGame(); //конец игры
-    void startGame(); //старт игры
-    void endGameMenu(Text text1, Text text2); //меню при смерти персонажа 
-    void restartGame(); //перезагрузка игры
+    void addEntity(); 
+    void update(float time);
+    void draw(); 
+    void information(); 
+    void endGame(); 
+    void startGame(); 
+    void endGameMenu(Text text1, Text text2);  
+    void restartGame(); 
 };
 
 void GameManager::addEntity() {
@@ -65,32 +68,22 @@ void GameManager::addEntity() {
     Image boss_image;
     boss_image.loadFromFile("images/sven.png");
 
-    if (level = 1) {
-        player2.enemy.push_back(new Enemy(EasyEnemyImage, 600, 550, 60, 60, "EasyEnemy"));
-        player2.enemy.push_back(new Enemy(EasyEnemyImage, 1500, 550, 60, 60, "EasyEnemy"));
-        player2.enemy.push_back(new Enemy(boss_image, 2400, 500, 130, 130, "sven"));
-
-        player2.bonus.push_back(new Bonus(hp_image, 1520, 320, 32, 32, "heart"));
-        player2.bonus.push_back(new Bonus(hp_image, 1952, 260, 32, 32, "heart"));
-
-        int xcn = 630;
-        int ycn = 550;
-        for (int i = 0; xcn < 2200; i++) {
-            xcn += 32;
-            if (xcn == 662) ycn = 450;
-            if (xcn == 758) { ycn = 350; xcn += 10; }
-            if (xcn <= 1152 && xcn >= 896) ycn = 0;
-            if (xcn == 1152) ycn = 415;
-            if (xcn == 1280) ycn = 320;
-            if (xcn <= 1664 && xcn >= 1504) ycn = 0;
-            if (xcn == 1728) ycn = 290;
-            if (xcn <= 2000 && xcn >= 1856) ycn = 0;
-            if (xcn == 2112) ycn = 260;
-            if (ycn > 1) {
-                player2.bonus.push_back(new Bonus(coin_image, xcn, ycn, 32, 32, "coin"));
+    for (int i = 0; i < HEIGHT_MAP; i++)
+        for (int j = 0; j < WIDTH_MAP; j++)
+        {
+            if (TileMap[i][j] == 'c') {
+                player2.bonus.push_back(new Bonus(coin_image, j * 32, i * 32, 32, 32, "coin"));
+            }
+            if (TileMap[i][j] == 'h') {
+                player2.bonus.push_back(new Bonus(hp_image, j * 32, i * 32, 32, 32, "heart"));
+            }
+            if (TileMap[i][j] == 'b') {
+                player2.enemy.push_back(new Enemy(EasyEnemyImage, j * 32, i * 32, 60, 60, "EasyEnemy"));
+            }
+            if (TileMap[i][j] == 'D') {
+                player2.enemy.push_back(new Enemy(boss_image, j * 32, i * 32, 130, 130, "sven"));
             }
         }
-    }
 }
 
 void GameManager::update(float time) {
@@ -180,6 +173,11 @@ void GameManager::startGame() {
 }
 
 void GameManager::endGame() {
+    if (countSoundGameOver == 1) {
+        sounds.playGameOverSound();
+        countSoundGameOver++;
+    }
+
     Texture Died;
     Died.loadFromFile("images/died.jpg");
 
@@ -219,18 +217,19 @@ void GameManager::endGameMenu(Text text1, Text text2) {
             if (event.mouseButton.button == sf::Mouse::Left)
             {
                 sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-                sf::Vector2f worldPosition = window.mapPixelToCoords(mousePosition); 
+                sf::Vector2f worldPosition = window.mapPixelToCoords(mousePosition);
                 sf::FloatRect text1Bounds = text1.getGlobalBounds();
                 sf::FloatRect text2Bounds = text2.getGlobalBounds();
 
 
                 if (text1Bounds.contains(worldPosition))
                 {
-                    std::cout << "qwe";
-
+                    sounds.stopGameOverSound();
+                    window.close();
                 }
                 else if (text2Bounds.contains(worldPosition))
                 {
+                    sounds.stopGameOverSound();
                     restartGame();
                 }
             }
@@ -242,11 +241,11 @@ void GameManager::endGameMenu(Text text1, Text text2) {
 
             if (text1.getGlobalBounds().contains(worldPosition))
             {
-                text1.setCharacterSize(50); 
+                text1.setCharacterSize(50);
             }
             else
             {
-                text1.setCharacterSize(40); 
+                text1.setCharacterSize(40);
             }
             if (text2.getGlobalBounds().contains(worldPosition))
             {
@@ -263,10 +262,11 @@ void GameManager::endGameMenu(Text text1, Text text2) {
 }
 
 void GameManager::restartGame() {
+    countSoundGameOver = 1;
     std::cout << "yeh";
     player2.life = true;
     player2.health = 100;
-    if (level = 1) {
+    if (level == 1) {
         player2.x = 128;
         player2.y = 550;
     }

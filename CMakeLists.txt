@@ -9,8 +9,12 @@ FetchContent_MakeAvailable(SFML)
 
 add_executable(CMakeSFMLProject 
 	src/main.cpp
+	src/menu.h
 	src/map.h
 	src/class.h
+	src/PlayerClass.h
+	src/BonusClass.h
+	src/EnemyClass.h
 	src/view.h
 	src/mission.h
 	src/GameManager.h

@@ -1,58 +1,175 @@
-//меню в будущем, но пока еще так себе работает
-
 #include "SFML/Graphics.hpp"
-#include "view.h"
-using namespace sf;
+#include "SFML/Audio.hpp"
+#include "GameManager.h"
 
-void menu(RenderWindow& window) {
-    Texture menuTexture1, menuTexture2, menuTexture3, aboutTexture, menuBackgroud;
+using namespace std;
 
-    menuTexture1.loadFromFile("images/111.png");
-    menuTexture2.loadFromFile("images/222.png");
-    menuTexture3.loadFromFile("images/333.png");
-    aboutTexture.loadFromFile("images/about.png");
+class Menu {
+private:
+	RenderWindow& window;
+    SoundManager sound;
+    Font font;
+    Texture back_texture;
+    Sprite background;
+	Text newGame;
+	Text settings;
+	Text aboutGame;
+	Text exit;
+public:
+	Menu(sf::RenderWindow& window) : window(window){
+        back_texture.loadFromFile("images/back_menu.jpg");
 
-    menuBackgroud.loadFromFile("images/back.jpg");
+        background.setTexture(back_texture);
 
-    Sprite menu1(menuTexture1), menu2(menuTexture2), menu3(menuTexture3), menuBg(menuBackgroud), about(aboutTexture);
-    bool isMenu = 1;
+        font.loadFromFile("beer-money12.ttf");
+    }
+    void drawMenu();
+    void informationAboutGame();
+};
 
-    menuBg.setPosition(view.getCenter() - sf::Vector2f(1280 / 2, 720 / 2));
+void Menu::drawMenu() {
+    sound.playMenuMusic();
+    Text nameGame(" ", font, 100);
+    nameGame.setOutlineColor(Color::Black);
+    nameGame.setFillColor(Color::Black);
+    nameGame.setString("Name Game");
+    nameGame.setPosition(480, 80);
 
-    int menuNum = 0;
-    menu1.setPosition(550, 100);
-    menu2.setPosition(550, 200);
-    menu3.setPosition(550, 300);
+    Text newGame(" ", font, 60);
+    newGame.setOutlineColor(Color::Black);
+    newGame.setFillColor(Color::Black);
+    newGame.setString("New Game");
+    newGame.setPosition(540, 220);
 
+    Text settings(" ", font, 60);
+    settings.setOutlineColor(Color::Black);
+    settings.setFillColor(Color::Black);
+    settings.setString("Settings");
+    settings.setPosition(540, 320);
 
-    while (isMenu) {
-        Event event;
-        while (window.pollEvent(event)) { // обработка всех событий окна
-            if (event.type == Event::Closed) {
+    Text aboutGame(" ", font, 60);
+    aboutGame.setOutlineColor(Color::Black);
+    aboutGame.setFillColor(Color::Black);
+    aboutGame.setString("About game");
+    aboutGame.setPosition(540, 420);
+
+    Text exit(" ", font, 60);
+    exit.setOutlineColor(Color::Black);
+    exit.setFillColor(Color::Black);
+    exit.setString("Exit");
+    exit.setPosition(540, 520);
+
+    while (window.isOpen()) {
+        sf::Event event;
+
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
                 window.close();
-                return;
+            }
+            else if (event.type == sf::Event::MouseButtonPressed)
+            {
+                if (event.mouseButton.button == sf::Mouse::Left)
+                {
+                    sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+                    sf::Vector2f worldPosition = window.mapPixelToCoords(mousePosition);
+                    sf::FloatRect text1Bounds = newGame.getGlobalBounds();
+                    sf::FloatRect text2Bounds = settings.getGlobalBounds();
+                    sf::FloatRect text3Bounds = aboutGame.getGlobalBounds();
+                    sf::FloatRect text4Bounds = exit.getGlobalBounds();
+
+                    if (text1Bounds.contains(worldPosition))
+                    {
+                        sound.endMenuMusic();
+                        GameManager gameManager(window);
+                        std::cout << "qwe";
+                        gameManager.startGame();
+                    }
+                    else if (text2Bounds.contains(worldPosition))
+                    {
+
+                    }
+                    else if (text3Bounds.contains(worldPosition))
+                    {
+                        informationAboutGame();
+                    }
+                    else if (text4Bounds.contains(worldPosition))
+                    {
+                        window.close();
+                    }
+                }
+            }
+            else if (event.type == sf::Event::MouseMoved)
+            {
+                sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+                sf::Vector2f worldPosition = window.mapPixelToCoords(mousePosition);
+
+                if (newGame.getGlobalBounds().contains(worldPosition))
+                {
+                    newGame.setCharacterSize(70);
+                }
+                if (settings.getGlobalBounds().contains(worldPosition))
+                {
+                    settings.setCharacterSize(70);
+                }
+                if (aboutGame.getGlobalBounds().contains(worldPosition))
+                {
+                    aboutGame.setCharacterSize(70);
+                }
+                if (exit.getGlobalBounds().contains(worldPosition))
+                {
+                    exit.setCharacterSize(70);
+                }
+                if (!newGame.getGlobalBounds().contains(worldPosition))
+                {
+                    newGame.setCharacterSize(60);
+                }
+                if (!settings.getGlobalBounds().contains(worldPosition))
+                {
+                    settings.setCharacterSize(60);
+                }
+                if (!aboutGame.getGlobalBounds().contains(worldPosition))
+                {
+                    aboutGame.setCharacterSize(60);
+                }
+                if (!exit.getGlobalBounds().contains(worldPosition))
+                {
+                    exit.setCharacterSize(60);
+                }
             }
         }
-
-        if (IntRect(500, 100, 300, 50).contains(Mouse::getPosition(window))) { menu1.setColor(Color::Blue); menuNum = 1; }
-        if (IntRect(500, 200, 300, 50).contains(Mouse::getPosition(window))) { menu2.setColor(Color::Blue); menuNum = 2; }
-        if (IntRect(500, 300, 300, 50).contains(Mouse::getPosition(window))) { menu3.setColor(Color::Blue); menuNum = 3; }
-
-        if (Mouse::isButtonPressed(Mouse::Left))
-        {
-            if (menuNum == 1) isMenu = false;
-            if (menuNum == 2) { window.draw(about); window.display(); while (!Keyboard::isKeyPressed(Keyboard::Escape)); }
-            if (menuNum == 3) { window.close(); isMenu = false; }
-
-        }
-        window.setView(view);
         window.clear();
-
-        window.draw(menuBg);
-        window.draw(menu1);
-        window.draw(menu2);
-        window.draw(menu3);
-
+        window.draw(background);
+        window.draw(nameGame);
+        window.draw(newGame);
+        window.draw(settings);
+        window.draw(aboutGame);
+        window.draw(exit);
         window.display();
     }
+}
+
+void Menu::informationAboutGame(){
+    Image aboutImage;
+    aboutImage.loadFromFile("images/about.png");
+
+    Texture about;
+    about.loadFromImage(aboutImage);
+
+    Sprite about_s;
+    about_s.setTexture(about);
+    sf::Event event;
+    while (window.isOpen()) {
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            }
+            else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
+                window.close();
+            }
+        }    
+        window.clear();
+        window.draw(about_s);
+        window.display();
+    }
+
 }
